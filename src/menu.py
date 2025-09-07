@@ -33,7 +33,7 @@ class App():
         btn_add = tk.Button(frame, text='Adicionar', width=12, command=self.on_add)
         btn_edit_name = tk.Button(frame, text='Editar Nome', width=12, command=self.on_edit_name)
         btn_remove = tk.Button(frame, text='Remover', width=12, command=self.on_remove)
-        btn_edit_order = tk.Button(frame, text='Editar Disciplinas', width=12, command=self.on_edit_order)
+        btn_edit_order = tk.Button(frame, text='Editar Disciplinas', width=12, command=self.on_manage_disciplines)
         btn_save = tk.Button(frame, text='Salvar', width=12, command=self.on_save)
         btn_view = tk.Button(frame, text='Gerar Ordem', width=12, command=self.on_view)
         btn_quit = tk.Button(frame, text='Sair', width=12, command=root.quit)
@@ -96,9 +96,6 @@ class App():
             course.name = new_name.strip()
             self.refresh_listbox()
 
-    def on_edit_order(self):
-        pass
-
     def on_view(self):
         pass
 
@@ -144,3 +141,88 @@ class App():
             raise ValueError('Formato inválido: esperado uma lista de cursos')
         self.courses = db_courses
         self.refresh_listbox()
+
+
+
+
+
+    def on_manage_disciplines(self):
+        sel = self.listbox.curselection()
+        if not sel:
+            messagebox.showinfo('Disciplinas', 'Selecione um curso para gerenciar as disciplinas.')
+            return
+        idx = sel[0]
+        course = self.courses[idx]
+        self.open_disciplines_window(course)
+
+    def open_disciplines_window(self, course):
+        """Abre uma janela (Toplevel) para listar/adicionar/editar/remover disciplinas do curso."""
+        win = tk.Toplevel(self.root)
+        win.title(f"Disciplinas — {course.name}")
+        win.geometry('450x320')
+
+        lbl = tk.Label(win, text=f"Disciplinas do curso: {course.name}")
+        lbl.pack(anchor='w', padx=8, pady=(8,0))
+
+        lf = tk.Frame(win, padx=8, pady=8)
+        lf.pack(fill=tk.BOTH, expand=True)
+
+        lb = tk.Listbox(lf, height=12)
+        lb.grid(row=0, column=0, columnspan=3, sticky='nsew')
+
+        sb = tk.Scrollbar(lf, orient=tk.VERTICAL, command=lb.yview)
+        sb.grid(row=0, column=3, sticky='ns')
+        lb.configure(yscrollcommand=sb.set)
+
+        def refresh_disc_list():
+            lb.delete(0, tk.END)
+            for d in course.subjects:
+                lb.insert(tk.END, d.name)
+
+        def add_disc():
+            name = simpledialog.askstring('Adicionar disciplina', 'Nome da disciplina:', parent=win)
+            if name:
+                course.create_subject(name.strip())
+
+                refresh_disc_list()
+                self.refresh_listbox()
+
+        def edit_disc():
+            s = lb.curselection()
+            if not s:
+                messagebox.showinfo('Editar', 'Selecione uma disciplina para editar.', parent=win)
+                return
+            i = s[0]
+            disc = course.subjects[i]
+            new_name = simpledialog.askstring('Editar disciplina', 'Nome da disciplina:', initialvalue=disc.name, parent=win)
+            if new_name:
+                disc.name = new_name.strip()
+                refresh_disc_list()
+                self.refresh_listbox()
+
+        def remove_disc():
+            s = lb.curselection()
+            if not s:
+                messagebox.showinfo('Remover', 'Selecione uma disciplina para remover.', parent=win)
+                return
+            i = s[0]
+            disc = course.subjects[i]
+            if messagebox.askyesno('Confirmar remoção', f'Deseja remover a disciplina "{disc.name}"?', parent=win):
+                del course.subjects[i]
+                refresh_disc_list()
+                self.refresh_listbox()
+
+        btn_add = tk.Button(lf, text='Adicionar', width=12, command=add_disc)
+        btn_edit = tk.Button(lf, text='Editar', width=12, command=edit_disc)
+        btn_remove = tk.Button(lf, text='Remover', width=12, command=remove_disc)
+
+        btn_add.grid(row=1, column=0, pady=8, sticky='w')
+        btn_edit.grid(row=1, column=1, pady=8)
+        btn_remove.grid(row=1, column=2, pady=8, sticky='e')
+
+        lf.grid_rowconfigure(0, weight=1)
+        lf.grid_columnconfigure(0, weight=1)
+
+        refresh_disc_list()
+
+

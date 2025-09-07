@@ -6,8 +6,9 @@ class course():
         self.name = name
         self.subjects = []
 
-    def add_subject(self, subject):
-        self.subjects.append({subject.name: subject.prereqs})
+    def create_subject(self, name):
+        disc = subject(name)
+        self.subjects.append(disc)
 
     def data_list(self): # Gera uma lista contendo as informações do objeto (serialização)
         subjects = {}
