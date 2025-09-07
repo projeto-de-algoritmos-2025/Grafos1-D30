@@ -187,6 +187,8 @@ class App():
                 refresh_disc_list()
                 self.refresh_listbox()
 
+
+
         def edit_disc():
             s = lb.curselection()
             if not s:
@@ -194,11 +196,62 @@ class App():
                 return
             i = s[0]
             disc = course.subjects[i]
-            new_name = simpledialog.askstring('Editar disciplina', 'Nome da disciplina:', initialvalue=disc.name, parent=win)
-            if new_name:
-                disc.name = new_name.strip()
+
+            # Janela de edição: permite alterar nome e selecionar pré-requisitos
+            ed = tk.Toplevel(win)
+            ed.title(f"Editar — {disc.name}")
+            ed.grab_set()
+
+            tk.Label(ed, text='Nome:').grid(row=0, column=0, sticky='w', padx=8, pady=(8,0))
+            name_var = tk.StringVar(value=disc.name)
+            entry = tk.Entry(ed, textvariable=name_var, width=40)
+            entry.grid(row=0, column=1, padx=8, pady=(8,0))
+
+            tk.Label(ed, text='Pré-requisitos (selecione múltiplos):').grid(row=1, column=0, columnspan=2, sticky='w', padx=8, pady=(8,0))
+
+            # Lista de possíveis pré-reqs: todas as outras disciplinas do mesmo curso
+            candidates = [d for d in course.subjects if d.name != disc.name]
+            listbox_pr = tk.Listbox(ed, selectmode=tk.MULTIPLE, height=10, width=50)
+            listbox_pr.grid(row=2, column=0, columnspan=2, padx=8, pady=(4,8))
+
+            # preencher
+            id_to_index = {}
+            for idx_c, cand in enumerate(candidates):
+                listbox_pr.insert(tk.END, cand.name)
+                id_to_index[cand.name] = idx_c
+
+            # pre-selecionar os que já são pré-reqs
+            existing = disc.prereqs
+            for pid in existing:
+                if pid in id_to_index:
+                    listbox_pr.selection_set(id_to_index[pid])
+
+            def save_edit():
+                new_name = name_var.get().strip()
+                if not new_name:
+                    messagebox.showwarning('Validação', 'O nome não pode ficar vazio.', parent=ed)
+                    return
+                # coletar seleções e mapear para ids
+                sel_idxs = listbox_pr.curselection()
+                selected_ids = [candidates[j].name for j in sel_idxs]
+
+                # salvar
+                disc.name = new_name
+                disc.prereqs = selected_ids
+
                 refresh_disc_list()
                 self.refresh_listbox()
+                ed.destroy()
+
+            btn_save = tk.Button(ed, text='Salvar', width=12, command=save_edit)
+            btn_cancel = tk.Button(ed, text='Cancelar', width=12, command=ed.destroy)
+            btn_save.grid(row=3, column=0, pady=8, padx=8, sticky='e')
+            btn_cancel.grid(row=3, column=1, pady=8, padx=8, sticky='w')
+
+            # focar na entrada
+            entry.focus_set()
+
+
 
         def remove_disc():
             s = lb.curselection()
