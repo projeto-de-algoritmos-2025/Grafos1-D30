@@ -1,7 +1,5 @@
 # OrdenaFluxo 📑
 
-<br>
-
 ## Sobre 
 
 O *OrdenaFluxo* é resultado do trabalho da [**Dupla 30**](#alunos) no primeiro módulo (*Grafos 1*) da disciplina de *Projeto de Algoritmos*, na *Universidade de Brasília (UnB/FCTE)*.
@@ -41,13 +39,23 @@ git clone https://github.com/projeto-de-algoritmos-2025/Grafos1-D30
 cd Grafos1-D30
 ```
 
-2. Instale as depêndencias:
+2. Crie e ative o ambiente virtual *Python*:
+
+```bash
+python -m venv venv
+```
+
+```bash
+.\venv\Scripts\activate
+```
+
+3. Instale as depêndencias no ambiente virtual:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Execute o arquivo *main.py*:
+4. Execute o arquivo *main.py*:
 
 ```bash
 python main.py
