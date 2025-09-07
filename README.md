@@ -1,28 +1,54 @@
-PA - Grafos 1 (Dupla 30)
+# OrdenaFluxo 📑
 
-# NomedoProjeto
-
-**Conteúdo da Disciplina**: Grafos 1<br>
-
-## Alunos
-|Matrícula | Aluno |
-| -- | -- |
-| 23/1034494  |  Eduardo de Pina |
-| 22/1008768  |  Pedro Everton |
+<br>
 
 ## Sobre 
-Descreva os objetivos do seu projeto e como ele funciona. 
+
+O *OrdenaFluxo* é resultado do trabalho da [**Dupla 30**](#alunos) no primeiro módulo (*Grafos 1*) da disciplina de *Projeto de Algoritmos*, na *Universidade de Brasília (UnB/FCTE)*.
+
+Trata-se de uma interface simples voltada para organização de disciplinas em um curso com 10 períodos. Basta inserir as disciplinas, configurar seus pré requisitos e será gerado um fluxo de matérias que você poderá seguir!
+
+<br>
+
+## Alunos
+
+| [![](https://avatars.githubusercontent.com/eduardodpms)](https://github.com/eduardodpms) | [![](https://avatars.githubusercontent.com/pedroeverton217)](https://github.com/pedroeverton217) |
+|:-:|:-:|
+| [*Eduardo de Pina*](https://github.com/eduardodpms) | [*Pedro Everton*](https://github.com/pedroeverton217) |
+| 23/1034494 | 22/1008768 |
+
+<br>
 
 ## Screenshots
-Adicione 3 ou mais screenshots do projeto em funcionamento.
 
-## Instalação 
-**Linguagem**: xxxxxx<br>
-**Framework**: (caso exista)<br>
-Descreva os pré-requisitos para rodar o seu projeto e os comandos necessários.
+<br>
 
-## Uso 
-Explique como usar seu projeto caso haja algum passo a passo após o comando de execução.
+## Requisitos
+**Linguagem**: Python<br>
+**Bibliotecas**: *A definir*
 
-## Outros 
-Quaisquer outras informações sobre seu projeto podem ser descritas abaixo.
+<br>
+
+## Instalação e Uso
+
+1. Clone o repositório e navegue até a pasta:
+
+```bash
+git clone https://github.com/projeto-de-algoritmos-2025/Grafos1-D30
+```
+
+```bash
+cd Grafos1-D30
+```
+
+2. Instale as depêndencias:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Execute o arquivo *main.py*:
+
+```bash
+python main.py
+```
