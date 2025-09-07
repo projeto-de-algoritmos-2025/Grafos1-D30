@@ -1,3 +1,4 @@
+from src.classes import course, subject
 import tkinter as tk
 from tkinter import messagebox, simpledialog, filedialog
 import json
@@ -9,7 +10,7 @@ DEFAULT_FILE = 'db/courses.json'
 class App():
     def __init__(self, root):
         self.root = root
-        self.root.title('Gerenciador de Cursos — Topological Demo')
+        self.root.title('OrdenaFluxo')
         self.courses = []  # lista de dicionários: {'id':..., 'name':..., 'prereqs':[...]}
         self.current_filepath = DEFAULT_FILE
 
@@ -19,9 +20,9 @@ class App():
 
         tk.Label(frame, text='Cursos:').grid(row=0, column=0, sticky='w')
 
-        self.listbox = tk.Listbox(frame, height=12, width=40)
+        self.listbox = tk.Listbox(frame, height=20, width=120)
         self.listbox.grid(row=1, column=0, columnspan=3, sticky='nsew')
-        self.listbox.bind('<Double-Button-1>', self.on_edit)
+        self.listbox.bind('<Double-Button-1>', self.on_edit_name)
 
         # Scrollbar
         scrollbar = tk.Scrollbar(frame, orient=tk.VERTICAL, command=self.listbox.yview)
@@ -30,20 +31,20 @@ class App():
 
         # Buttons
         btn_add = tk.Button(frame, text='Adicionar', width=12, command=self.on_add)
-        btn_edit = tk.Button(frame, text='Editar', width=12, command=self.on_edit)
+        btn_edit_name = tk.Button(frame, text='Editar Nome', width=12, command=self.on_edit_name)
         btn_remove = tk.Button(frame, text='Remover', width=12, command=self.on_remove)
-        btn_load = tk.Button(frame, text='Carregar...', width=12, command=self.on_load)
+        btn_edit_order = tk.Button(frame, text='Editar Disciplinas', width=12, command=self.on_edit_order)
         btn_save = tk.Button(frame, text='Salvar', width=12, command=self.on_save)
-        btn_saveas = tk.Button(frame, text='Salvar como...', width=12, command=self.on_save_as)
+        btn_view = tk.Button(frame, text='Gerar Ordem', width=12, command=self.on_view)
         btn_quit = tk.Button(frame, text='Sair', width=12, command=root.quit)
 
         btn_add.grid(row=2, column=0, pady=8, sticky='w')
-        btn_edit.grid(row=2, column=1, pady=8)
-        btn_remove.grid(row=2, column=2, pady=8, sticky='e')
+        btn_remove.grid(row=3, column=0, pady=4, sticky='w')
 
-        btn_load.grid(row=3, column=0, pady=4, sticky='w')
+        btn_edit_name.grid(row=2, column=1, pady=8)
+        btn_edit_order.grid(row=2, column=2, pady=8, sticky='e')
         btn_save.grid(row=3, column=1, pady=4)
-        btn_saveas.grid(row=3, column=2, pady=4, sticky='e')
+        btn_view.grid(row=3, column=2, pady=4, sticky='e')
 
         btn_quit.grid(row=4, column=2, pady=(12,0), sticky='e')
 
@@ -62,30 +63,14 @@ class App():
     def refresh_listbox(self):
         self.listbox.delete(0, tk.END)
         for c in self.courses:
-            self.listbox.insert(tk.END, c['name'])
+            self.listbox.insert(tk.END, c.name)
 
     def on_add(self):
         name = simpledialog.askstring('Adicionar curso', 'Nome do curso:')
         if name:
             # cria objeto de curso
-            new_course = {
-                'id': uuid.uuid4().hex,
-                'name': name.strip(),
-                'prereqs': []  # inicialmente vazio; etapas futuras adicionarão disciplinas e pré-reqs
-            }
+            new_course = course(name.strip())
             self.courses.append(new_course)
-            self.refresh_listbox()
-
-    def on_edit(self, event=None):
-        sel = self.listbox.curselection()
-        if not sel:
-            messagebox.showinfo('Editar', 'Selecione um curso para editar.')
-            return
-        idx = sel[0]
-        course = self.courses[idx]
-        new_name = simpledialog.askstring('Editar curso', 'Nome do curso:', initialvalue=course['name'])
-        if new_name:
-            course['name'] = new_name.strip()
             self.refresh_listbox()
 
     def on_remove(self):
@@ -95,20 +80,27 @@ class App():
             return
         idx = sel[0]
         course = self.courses[idx]
-        if messagebox.askyesno('Confirmar remoção', f'Deseja remover o curso "{course["name"]}"?'):
+        if messagebox.askyesno('Confirmar remoção', f'Deseja remover o curso "{course.name}"?'):
             del self.courses[idx]
             self.refresh_listbox()
 
-    def on_load(self):
-        filepath = filedialog.askopenfilename(title='Abrir arquivo JSON', filetypes=[('JSON files','*.json'),('All files','*.*')])
-        if not filepath:
+    def on_edit_name(self, event=None):
+        sel = self.listbox.curselection()
+        if not sel:
+            messagebox.showinfo('Editar', 'Selecione um curso para editar.')
             return
-        try:
-            self.load_from_file(filepath)
-            self.current_filepath = filepath
-            messagebox.showinfo('Carregado', f'Arquivo carregado: {os.path.basename(filepath)}')
-        except Exception as e:
-            messagebox.showerror('Erro', f'Falha ao carregar JSON:\n{e}')
+        idx = sel[0]
+        course = self.courses[idx]
+        new_name = simpledialog.askstring('Editar curso', 'Nome do curso:', initialvalue=course.name)
+        if new_name:
+            course.name = new_name.strip()
+            self.refresh_listbox()
+
+    def on_edit_order(self):
+        pass
+
+    def on_view(self):
+        pass
 
     def on_save(self):
         try:
@@ -117,36 +109,38 @@ class App():
         except Exception as e:
             messagebox.showerror('Erro', f'Falha ao salvar:\n{e}')
 
-    def on_save_as(self):
-        filepath = filedialog.asksaveasfilename(defaultextension='.json', filetypes=[('JSON files','*.json'),('All files','*.*')])
-        if not filepath:
-            return
-        try:
-            self.save_to_file(filepath)
-            self.current_filepath = filepath
-            messagebox.showinfo('Salvo', f'Salvo em: {self.current_filepath}')
-        except Exception as e:
-            messagebox.showerror('Erro', f'Falha ao salvar:\n{e}')
-
-    def load_from_file(self, filepath):
-        with open(filepath, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        # Validar formato: esperamos uma lista de objetos com 'id' e 'name'
-        if not isinstance(data, list):
-            raise ValueError('Formato inválido: esperado uma lista de cursos')
-        cleaned = []
-        for item in data:
-            if 'id' in item and 'name' in item:
-                # garantir chave prereqs
-                item.setdefault('prereqs', [])
-                cleaned.append(item)
-        self.courses = cleaned
-        self.refresh_listbox()
-
     def save_to_file(self, filepath):
         # criar pasta se necessário
         folder = os.path.dirname(filepath)
         if folder and not os.path.exists(folder):
             os.makedirs(folder, exist_ok=True)
         with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(self.courses, f, ensure_ascii=False, indent=2)
+            db_dump = []
+            for c in self.courses:
+                db_dump.append(c.data_list())
+            json.dump(db_dump, f, ensure_ascii=False, indent=2)
+
+    def load_from_file(self, filepath):
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # deserialization start
+        db_courses = []
+        
+        for d in data:
+            db_subjects = []
+            for key, value in d['subjects'].items():
+                db_subject = subject(key)
+                db_subject.prereqs = value
+                db_subjects.append(db_subject)
+
+            db_course = course(d['name'])
+            db_course.id = d['id']
+            db_course.subjects = db_subjects
+            db_courses.append(db_course)
+        # deserialization end
+
+        if not isinstance(data, list):
+            raise ValueError('Formato inválido: esperado uma lista de cursos')
+        self.courses = db_courses
+        self.refresh_listbox()
