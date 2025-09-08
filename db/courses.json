@@ -1,0 +1,19 @@
+[
+  {
+    "id": "09a4c729023141bcaa9776de439870db",
+    "name": "Engenharia de Software",
+    "subjects": {
+      "Prática de Eletrônica Digital 1": ["Introdução à Álgebra Linear"],
+      "Estrutura de Dados 2": ["Estrutura de Dados 1"],
+      "Fundamentos de Redes de Computadores": ["Fundamentos de Sistemas Operacionais"],
+      "Projeto de Algoritmos": ["Estrutura de Dados 1"],
+      "Algoritmos e Programação de Computadores": [],
+      "Programação para Sistemas Paralelos e Distribuídos": ["Fundamentos de Redes de Computadores", "Estrutura de Dados 2"],
+      "Estrutura de Dados 1": ["Algoritmos e Programação de Computadores"],
+      "Teoria de Eletrônica Digital 1": ["Introdução à Álgebra Linear"],
+      "Fundamentos de Arquitetura de Computadores": ["Teoria de Eletrônica Digital 1", "Prática de Eletrônica Digital 1"],
+      "Introdução à Álgebra Linear": [],
+      "Fundamentos de Sistemas Operacionais": ["Fundamentos de Arquitetura de Computadores"]
+    }
+  }
+]
